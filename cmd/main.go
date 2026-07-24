@@ -3,6 +3,8 @@ package main
 import (
 	"InceptionDeployer/config"
 	"InceptionDeployer/tooling"
+	"InceptionDeployer/internal/builder"
+	"InceptionDeployer/internal/banner"
 	"bufio"
 	"fmt"
 	"os"
@@ -13,7 +15,7 @@ import (
 )
 
 func logme(msg string){
-	fmt.Printf(Color.Purple + msg + Color.Reset + ": ");
+	fmt.Printf("%s", Color.Purple + msg + Color.Reset + ": ");
 }
 
 type Metadata struct{
@@ -48,6 +50,7 @@ func getProjectPath(projectName string) string {
 }
 
 func main(){
+	banner.Show()
 	name := getProjectName()
 
 	md := Metadata{
@@ -55,8 +58,11 @@ func main(){
 		ProjectPath: getProjectPath(name),
 	}
 
+
 	log.Info("Project metadata initialized",
 		"name", md.ProjectName,
 		"path", md.ProjectPath,
 	)
+
+	builder.CreateStructure(md.ProjectPath)
 }
