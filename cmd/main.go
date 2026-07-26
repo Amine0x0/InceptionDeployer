@@ -5,6 +5,7 @@ import (
 	"InceptionDeployer/tooling"
 	"InceptionDeployer/internal/builder"
 	"InceptionDeployer/internal/banner"
+	"InceptionDeployer/internal/orchestrator"
 	"bufio"
 	"fmt"
 	"os"
@@ -21,6 +22,7 @@ func logme(msg string){
 type Metadata struct{
 	ProjectName string
 	ProjectPath string
+	StudentLogin string
 }
 
 func getProjectName() string {
@@ -36,8 +38,8 @@ func getProjectName() string {
 }
 
 func getProjectPath(projectName string) string {
-	logme("Select where you wanna Store your project")
-	time.Sleep(2 * time.Second)
+	fmt.Println("Select where you wanna Store your project")
+	time.Sleep(1 * time.Second)
 	directory, err := dialog.Directory().
 		Title("Select Where to Create Your Inception Project").
 		Browse()
@@ -49,6 +51,18 @@ func getProjectPath(projectName string) string {
 	return filepath.Join(directory, projectName)
 }
 
+func getStudentLogin() string{
+	scanner := bufio.NewScanner(os.Stdin)
+	logme("Enter your 42 login: ")
+	if scanner.Scan() {
+		line := scanner.Text()
+		if line != "" {
+			return line
+		}
+	}
+	return "DarthVader"
+}
+
 func main(){
 	banner.Show()
 	name := getProjectName()
@@ -56,13 +70,15 @@ func main(){
 	md := Metadata{
 		ProjectName: name,
 		ProjectPath: getProjectPath(name),
+		StudentLogin: getStudentLogin(),
 	}
 
-
+	log.Info("creating folder structure for ", md.StudentLogin);
 	log.Info("Project metadata initialized",
 		"name", md.ProjectName,
 		"path", md.ProjectPath,
 	)
 
 	builder.CreateStructure(md.ProjectPath)
+	orchestrator.Generateall(md.ProjectPath)
 }
